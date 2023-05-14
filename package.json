@@ -1,0 +1,25 @@
+{
+  "name": "ohm-grammar-grouped-pokemon-go-query",
+  "version": "1.0.0",
+  "description": "An Ohm grammar for Grouped Pokemon Go Query syntax.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "tape tests/**/*.js"
+  },
+  "keywords": [],
+  "author": "Sean Zellmer <sean@lejeunerenard.com> (http://lejeunerenard.com/)",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "tape": "^5.6.3"
+  },
+  "dependencies": {
+    "ohm-js": "^17.1.0",
+    "pokemon-go-storage-query-tree": "github:lejeunerenard/pokemon-go-storage-query-tree"
+  }
+}
