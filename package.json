@@ -1,6 +1,6 @@
 {
   "name": "ohm-grammar-grouped-pokemon-go-query",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An Ohm grammar for Grouped Pokemon Go Query syntax.",
   "main": "index.js",
   "type": "module",

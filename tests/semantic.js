@@ -9,9 +9,9 @@ function evalStr (input) {
 
 test('parse', (t) => {
   t.test('TERM', (t) => {
-    t.deepEquals(evalStr('123'), new SearchTermNode('123'), 'number')
+    t.notDeepEquals(evalStr('123'), new SearchTermNode('123'), 'doesnt take number')
     t.deepEquals(evalStr('beep'), new SearchTermNode('beep'), 'strings')
-    t.deepEquals(evalStr('3*'), new SearchTermNode('3*'), 'non-interval star')
+    t.notDeepEquals(evalStr('3*'), new SearchTermNode('3*'), 'doesnt take star')
 
     t.end()
   })
@@ -22,15 +22,17 @@ test('parse', (t) => {
     t.deepEquals(evalStr('-3hp'), new SearchIntervalNode('hp', null, 3), 'upper only w/ term')
     t.deepEquals(evalStr('3-'), new SearchIntervalNode(null, 3, null), 'lower only')
     t.deepEquals(evalStr('3-defense'), new SearchIntervalNode('defense', 3, null), 'lower only')
+    t.deepEquals(evalStr('123'), new SearchIntervalNode(null, 123, 123), 'single pokemon numbers')
+    t.deepEquals(evalStr('3*'), new SearchIntervalNode('*', 3, 3), '\\d star')
 
     t.end()
   })
 
   t.test('NOT', (t) => {
     t.deepEquals(evalStr('!shiny'), new SearchComplimentNode(new SearchTermNode('shiny')), 'complete w/ term')
-    t.deepEquals(evalStr('!(shiny,123)'), new SearchComplimentNode(new SearchUnionNode([
+    t.deepEquals(evalStr('!(shiny,evolve)'), new SearchComplimentNode(new SearchUnionNode([
       new SearchTermNode('shiny'),
-      new SearchTermNode('123')
+      new SearchTermNode('evolve')
     ])), 'NOT of OR')
 
     t.end()
@@ -38,9 +40,9 @@ test('parse', (t) => {
 
   t.test('OR', (t) => {
     t.test('simple', (t) => {
-      const tree = evalStr('123,shiny')
+      const tree = evalStr('evolve,shiny')
       const expected = new SearchUnionNode([
-        new SearchTermNode('123'),
+        new SearchTermNode('evolve'),
         new SearchTermNode('shiny')
       ])
 
@@ -49,10 +51,10 @@ test('parse', (t) => {
     })
 
     t.test('left associative', (t) => {
-      const tree = evalStr('123,shiny,lucky')
+      const tree = evalStr('evolve,shiny,lucky')
       const expected = new SearchUnionNode([
         new SearchUnionNode([
-          new SearchTermNode('123'),
+          new SearchTermNode('evolve'),
           new SearchTermNode('shiny')
         ]),
         new SearchTermNode('lucky')
@@ -65,9 +67,9 @@ test('parse', (t) => {
 
   t.test('AND', (t) => {
     t.test('simple', (t) => {
-      const tree = evalStr('123&shiny')
+      const tree = evalStr('evolve&shiny')
       const expected = new SearchIntersectNode([
-        new SearchTermNode('123'),
+        new SearchTermNode('evolve'),
         new SearchTermNode('shiny')
       ])
 
@@ -76,10 +78,10 @@ test('parse', (t) => {
     })
 
     t.test('left associative', (t) => {
-      const tree = evalStr('123&shiny&lucky')
+      const tree = evalStr('evolve&shiny&lucky')
       const expected = new SearchIntersectNode([
         new SearchIntersectNode([
-          new SearchTermNode('123'),
+          new SearchTermNode('evolve'),
           new SearchTermNode('shiny')
         ]),
         new SearchTermNode('lucky')
@@ -90,9 +92,9 @@ test('parse', (t) => {
     })
 
     t.test('precident over OR', (t) => {
-      const tree = evalStr('123&shiny,lucky')
+      const tree = evalStr('evolve&shiny,lucky')
       const expected = new SearchIntersectNode([
-        new SearchTermNode('123'),
+        new SearchTermNode('evolve'),
         new SearchUnionNode([
           new SearchTermNode('shiny'),
           new SearchTermNode('lucky')
@@ -106,9 +108,9 @@ test('parse', (t) => {
 
   t.test('parenthesis', (t) => {
     t.test('simple', (t) => {
-      const tree = evalStr('(123,shiny)')
+      const tree = evalStr('(evolve,shiny)')
       const expected = new SearchUnionNode([
-        new SearchTermNode('123'),
+        new SearchTermNode('evolve'),
         new SearchTermNode('shiny')
       ])
 
@@ -117,10 +119,10 @@ test('parse', (t) => {
     })
 
     t.test('order of operations', (t) => {
-      const tree = evalStr('(123&shiny),lucky')
+      const tree = evalStr('(evolve&shiny),lucky')
       const expected = new SearchUnionNode([
         new SearchIntersectNode([
-          new SearchTermNode('123'),
+          new SearchTermNode('evolve'),
           new SearchTermNode('shiny')
         ]),
         new SearchTermNode('lucky')

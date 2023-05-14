@@ -35,12 +35,13 @@ GroupedPokemonGoQuery {
   openParen = "("
   closeParen = ")"
 
-  Interval = Bound* "-" Bound Term
-           | Bound "-" Bound* Term
+  Interval = Bound* "-" Bound* Term* --ternary
+           | Bound Term*             --unary
 
   Bound = digit+
 
-  Term   = ~operator "+"* "@"* alnum* "*"*
+  Term   = ~operator "+"* "@"* alnum+ --basic
+         | "*"
 }
 `)
 
@@ -58,13 +59,19 @@ s.addOperation('eval', {
   NotExp_unary (_, a) {
     return new SearchComplimentNode(a.eval())
   },
-  Interval (lower, _, upper, term) {
+  Interval_ternary (lower, _, upper, term) {
     return new SearchIntervalNode(term.sourceString || null,
       lower.sourceString ? Number(lower.sourceString) : null,
       upper.sourceString ? Number(upper.sourceString) : null
     )
   },
-  Term (a, b, c, d) {
+  Interval_unary (lower, term) {
+    return new SearchIntervalNode(term.sourceString || null,
+      Number(lower.sourceString),
+      Number(lower.sourceString)
+    )
+  },
+  Term (a) {
     return new SearchTermNode([...arguments]
       .map((arg) => arg.sourceString).join(''))
   }
